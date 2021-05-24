@@ -2,8 +2,8 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const util = require('util');
 const logo = require('asciiart-logo');
-const connection = require('./connection.js');
-const { start } = require('./functions');
+const connection = require('./config/connection.js');
+const { start } = require('./functions/functions');
 
 connection.query = util.promisify(connection.query);
 

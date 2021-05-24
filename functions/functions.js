@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
-const connection = require('./connection');
+const connection = require('../config/connection');
 
 
 const start = async () => {
