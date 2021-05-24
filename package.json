@@ -1,0 +1,27 @@
+{
+  "name": "Employee-Tracker",
+  "version": "1.0.0",
+  "description": "An Employee Tracker application run utilising Node.js and mySQL.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SamuelHeal/Employee-Tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SamuelHeal/Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/SamuelHeal/Employee-Tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "dotenv": "^9.0.2",
+    "inquirer": "^8.0.0",
+    "mysql": "^2.18.1"
+  }
+}
