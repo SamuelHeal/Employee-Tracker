@@ -2,6 +2,7 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
 const connection = require('../config/connection');
+const manager = require('../../../Assignment_10/Team_Profile_Generator/Classes/Manager');
 
 
 const start = async () => {
@@ -37,10 +38,10 @@ const start = async () => {
                 addEmployee();
                 break;
             case 'Add Department':
-                // viewRoles();
+                addDepartment();
                 break;
             case 'Add Role':
-                // viewEmployees();
+                addRole();
                 break;
             case 'Update Employee Role':
                 console.log("Update Employee Role");
@@ -57,10 +58,20 @@ const managerIDs = []
 const allManagers = async () => {
     const theManagers = await connection.query('SELECT * FROM managers', (err, results) => {
             if (err) throw err;
-            results.forEach(({ manager_name, id }) => {
-                managerArray.push(manager_name)
-                managerIDs.push(id)
-            });
+
+            if(results.length !== 0){
+                results.forEach(({ manager_name, id }) => {
+                    managerArray.push(manager_name)
+                    managerIDs.push(id)
+                });
+            }
+            else{
+                managerArray.push('No Managers Available')
+                managerIDs.push(0)
+            }
+                
+            
+            
     });
     
 }
@@ -70,10 +81,17 @@ const departmentIDs = []
 const allDepartments = async () => {
     const theDepartments = await connection.query('SELECT * FROM departments', (err, results) => {
             if (err) throw err;
-            results.forEach(({ department_name, id }) => {
-                departmentArray.push(department_name)
-                departmentIDs.push(id)
-            });
+
+            if(results.length !== 0){
+                results.forEach(({ department_name, id }) => {
+                    departmentArray.push(department_name)
+                    departmentIDs.push(id)
+                });
+            }
+            else{
+                departmentArray.push('No Departments Available')
+                departmentIDs.push(0)
+            }
     });
     
 }
@@ -83,15 +101,20 @@ const roleIDs = []
 const allRoles = async () => {
     const theRoles = await connection.query('SELECT * FROM roles', (err, results) => {
             if (err) throw err;
-            results.forEach(({ title, id }) => {
-                roleArray.push(title)  
-                roleIDs.push(id)
-            });
+            if(results.length !== 0){
+                results.forEach(({ title, id }) => {
+                    roleArray.push(title)  
+                    roleIDs.push(id)
+                });
+            }
+            else{
+                roleArray.push('No Roles Available')
+                roleIDs.push(0)
+            }
     });
     
 }
 
-const employees = []
 const employeeQuestions = [{
     name: 'firstName',
     message: 'What is their first name? '
@@ -111,8 +134,7 @@ const employeeQuestions = [{
     type: 'list',
     message: 'Who is their manager? ',
     choices: managerArray
-}
-]
+}]
 
 function addEmployee () {
     inquirer.prompt(employeeQuestions)
@@ -121,18 +143,24 @@ function addEmployee () {
         let employeeName = `${response.firstName} ${response.lastName}`
         var roleID = 0
         var managerID = 0
-        for (var i = 0; i < managerArray.length; i++){
-            if(managerArray[i] === response.manager){
-                managerID = managerIDs[i]
+        if (managerArray.length !== 0){
+            for (var i = 0; i < managerArray.length; i++){
+                if(managerArray[i] === response.manager){
+                    managerID = managerIDs[i]
+                }
+    
             }
-
+            
         }
-        for (var i = 0; i < roleArray.length; i++){
-            if(roleArray[i] === response.manager){
-                roleID = roleIDs[i]
+
+        if (roleArray.length !== 0){
+            for (var i = 0; i < roleArray.length; i++){
+                if(roleArray[i] === response.manager){
+                    roleID = roleIDs[i]
+                }
             }
-
         }
+        
         connection.query(
             'INSERT INTO employees SET ?',
             {
@@ -142,6 +170,63 @@ function addEmployee () {
                     manager_id: managerID
             })
         console.log(employeeName, 'added into the system')
+    })
+}
+
+function addDepartment() {
+    inquirer.prompt({
+        name: 'department',
+        message: 'What is the name of the department you would like to add?'
+    })
+    .then((response) => {
+        connection.query(
+            'INSERT INTO departments SET ?',
+            {
+                department_name: response.department
+            }
+        )
+        console.log(response.department, 'added into the system')
+
+    })
+}
+
+const roleQuestions = [{
+    name: 'title',
+    message: 'What is the title of the position you would like to add? '
+},
+{
+    name: 'salary',
+    message: 'What is the salary for this position? '
+},
+{
+    name: 'department',
+    type: 'list',
+    message: 'What department will the position be in? ',
+    choices: departmentArray
+}]
+
+function addRole() {
+    inquirer.prompt(roleQuestions)
+    .then((response) => {
+        var departmentID = 0
+
+        if (departmentArray.length !== 0){
+            for (var i = 0; i < departmentArray.length; i++){
+                if (departmentArray[i] === response.department){
+                    departmentID = departmentIDs[i]
+                }
+            }
+        }
+
+        connection.query(
+            'INSERT INTO roles SET ?',
+            {
+                title: response.title,
+                salary: response.salary,
+                department_id: departmentID
+            }
+        )
+        console.log(response.title, 'added into the system')
     })
 }
 
