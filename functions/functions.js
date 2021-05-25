@@ -339,7 +339,7 @@ function addEmployee () {
         }
 
         if (roleArray.length !== 0){
-            for (var i = 0; i < roleArray.length; i++){
+            for (var i = 0; i <= roleArray.length; i++){
                 if(roleArray[i] === response.role){
                     roleID = roleIDs[i]
                     
@@ -395,7 +395,7 @@ function addRole() {
         var departmentID = 0
 
         if (departmentArray.length !== 0){
-            for (var i = 0; i < departmentArray.length; i++){
+            for (var i = 0; i <= departmentArray.length; i++){
                 if (departmentArray[i] === response.department){
                     departmentID = departmentIDs[i]
                 }
@@ -474,7 +474,7 @@ const updateRole = async () => {
     ])
     .then((response) => {
         var newRoleID = 0
-        for (let i = 0; i < roleArray.length; i++){
+        for (let i = 0; i <= roleArray.length; i++){
             if (roleArray[i] === response.role){
                 newRoleID = roleIDs[i]
             }
@@ -526,7 +526,7 @@ const updateManager = async () => {
     ])
     .then((response) => {
         var newManagerID = 0
-        for (let i = 0; i < managerArray.length; i++){
+        for (let i = 0; i <= managerArray.length; i++){
             if (managerArray[i] === response.manager){
                 newManagerID = managerIDs[i]
             }
@@ -660,6 +660,7 @@ const deleteRole = async () => {
     })
     .then((response) => home())
 }
+
 
 // --------------------------------------------------------------------------------------------------------------
 // exit function
