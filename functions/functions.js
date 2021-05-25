@@ -385,10 +385,12 @@ const updateEmployees = async () => {
                 updateRole()
                 break;
             case 'Update employee MANAGER':
-                // something
+                updateManager()
                 break;
         }
+        
     })
+    
 }
 
 
@@ -435,11 +437,60 @@ const updateRole = async () => {
             ]
         )
         console.log("Role Updated")
-        home()
+        
     })
+    .then((response) => home())
 
 }
 
+
+const updateManager = async () => {
+    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id)')
+    console.table(
+        '=====================================================',
+        '-----------------   ALL EMPLOYEES   -----------------',
+        '-----------------------------------------------------',
+        allEmployees,
+        '====================================================='
+    )
+
+    inquirer.prompt([{
+        name: 'employee',
+        type: 'list',
+        choices: employeeArray,
+        message: 'Please select the employee ID you would like to update'
+    },
+    {
+        name: 'manager',
+        type: 'list',
+        choices: managerArray,
+        message: 'What is this employees new manager?'
+    }
+        
+    ])
+    .then((response) => {
+        var newManagerID = 0
+        for (let i = 0; i < managerArray.length; i++){
+            if (managerArray[i] === response.manager){
+                newManagerID = managerIDs[i]
+            }
+        }
+        connection.query(
+            'UPDATE employees SET ? WHERE ?',
+            [
+                {
+                    manager_id: newManagerID
+                },
+                {
+                    id: response.employee
+                }
+            ]
+        )
+        console.log("Role Updated")
+        
+    })
+    .then((response) => home())
+}
 
 
 module.exports = { start };
