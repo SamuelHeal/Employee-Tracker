@@ -46,7 +46,7 @@ const start = async () => {
                 updateEmployees();
                 break;
             case 'Exit':
-                // exitProgram();
+                exit();
                 break;
         }
         });
@@ -92,7 +92,7 @@ function home(){
                 updateEmployees();
                 break;
             case 'Exit':
-                // exitProgram();
+                exit();
                 break;
         }
         });
@@ -243,7 +243,11 @@ function addEmployee () {
                     role_id: roleID,
                     manager_id: managerID
             })
-        console.log(employeeName, 'added into the system')
+            console.table(
+                '=============================',
+                employeeName,
+                '----- ADDED INTO SYSTEM -----',
+                '=============================')
         home()
     })
 }
@@ -260,7 +264,11 @@ function addDepartment() {
                 department_name: response.department
             }
         )
-        console.log(response.department, 'added into the system')
+        console.table(
+            '=============================',
+            response.department,
+            '----- ADDED INTO SYSTEM -----',
+            '=============================')
         departmentArray.push(response.department)
         
 
@@ -293,6 +301,11 @@ function addRole() {
             }
         )
         console.log(response.title, 'added into the system')
+        console.table(
+            '=============================',
+            response.title,
+            '----- ADDED INTO SYSTEM -----',
+            '=============================')
         roleArray.push(response.title)
         home()
     })
@@ -303,7 +316,7 @@ function viewEmployees(){
         {
             name: 'choice',
             type: 'list',
-            choices: ['View ALL employees', 'View employees by ROLE', 'Exit'],
+            choices: ['View ALL employees', 'View employees by ROLE', 'View employees by MANAGER', 'Exit'],
             message: 'What would you like to do?'
         }
     ])
@@ -314,6 +327,9 @@ function viewEmployees(){
                 break;
             case 'View employees by ROLE':
                 viewEmployeesByRole()
+                break;
+            case 'View employees by MANAGER':
+                viewEmployeesByManager()
                 break;
             case 'Exit':
                 home()
@@ -335,12 +351,24 @@ const viewAllEmployees = async () => {
 }
 
 const viewEmployeesByRole = async () => {
-    const employeesRole = await connection.query('SELECT roles.title, employees.first_name, employees.last_name, roles.salary FROM employees LEFT JOIN roles ON roles.id = employees.role_id')
+    const employeesRole = await connection.query('SELECT roles.title, employees.first_name, employees.last_name, roles.salary FROM employees LEFT JOIN roles ON roles.id = employees.role_id ORDER BY roles.id')
     console.table(
         '==========================================',
         '---------   EMPLOYEES BY ROLES   ---------',
         '------------------------------------------',
         employeesRole,
+        '=========================================='
+    )
+    viewEmployees()
+}
+
+const viewEmployeesByManager = async () => {
+    const employeesManager = await connection.query('SELECT managers.id, managers.manager_name, employees.first_name, employees.last_name FROM employees LEFT JOIN managers on managers.id = employees.manager_id ORDER BY managers.id')
+    console.table(
+        '==========================================',
+        '--------   EMPLOYEES BY MANAGER   --------',
+        '------------------------------------------',
+        employeesManager,
         '=========================================='
     )
     viewEmployees()
@@ -395,7 +423,7 @@ const updateEmployees = async () => {
 
 
 const updateRole = async () => {
-    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id)')
+    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id) ORDER BY employees.role_id')
     console.table(
         '=====================================================',
         '-----------------   ALL EMPLOYEES   -----------------',
@@ -436,7 +464,10 @@ const updateRole = async () => {
                 }
             ]
         )
-        console.log("Role Updated")
+        console.table(
+            '=============================',
+            '-------  ROLE UPDATED  ------',
+            '=============================')
         
     })
     .then((response) => home())
@@ -445,7 +476,7 @@ const updateRole = async () => {
 
 
 const updateManager = async () => {
-    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id)')
+    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id) ORDER BY managers.id')
     console.table(
         '=====================================================',
         '-----------------   ALL EMPLOYEES   -----------------',
@@ -486,10 +517,21 @@ const updateManager = async () => {
                 }
             ]
         )
-        console.log("Role Updated")
+        console.table(
+            '=============================',
+            '-----  MANAGER UPDATED  -----',
+            '=============================')
         
     })
     .then((response) => home())
+}
+
+function exit() {
+    console.table(
+        '=============================',
+        '-------  LOGGING OFF  -------',
+        '=============================')
+    process.exit()
 }
 
 
