@@ -7,6 +7,7 @@ const start = async () => {
     allManagers()
     allDepartments()
     allRoles()
+    allEmployees()
     return await inquirer.prompt({
         name: 'start',
         type: 'list',
@@ -18,7 +19,7 @@ const start = async () => {
             'Add Employee',
             'Add Department',
             'Add Role',
-            'Update Employee Role',
+            'Update Employee',
             'Exit',
         ],
     }).then((response) => {
@@ -42,7 +43,7 @@ const start = async () => {
                 addRole();
                 break;
             case 'Update Employee':
-                console.log("Update Employee Role");
+                updateEmployees();
                 break;
             case 'Exit':
                 // exitProgram();
@@ -63,7 +64,7 @@ function home(){
             'Add Employee',
             'Add Department',
             'Add Role',
-            'Update Employee Role',
+            'Update Employee',
             'Exit',
         ],
     })
@@ -87,14 +88,31 @@ function home(){
             case 'Add Role':
                 addRole();
                 break;
-            case 'Update Employee Role':
-                console.log("Update Employee Role");
+            case 'Update Employee':
+                updateEmployees();
                 break;
             case 'Exit':
                 // exitProgram();
                 break;
         }
         });
+}
+
+const employeeArray = []
+const allEmployees = async () => {
+    const theEmployees = await connection.query('SELECT * FROM employees', (err, results) => {
+        if (err) throw err;
+
+            if(results.length !== 0){
+                results.forEach(({ id }) => {
+                    employeeArray.push(id)
+                });
+            }
+            else{
+                employeeArray.push('No Employees Available')
+                
+            }  
+    })
 }
 
 const managerArray = []
@@ -150,7 +168,9 @@ const allRoles = async () => {
                 roleArray.push('No Roles Available')
                 roleIDs.push(0)
             }
+            allRoles()
     }); 
+    
 }
 
 const employeeQuestions = [{
@@ -190,7 +210,6 @@ const roleQuestions = [{
 }]
 
 function addEmployee () {
-    console.log(roleIDs)
     inquirer.prompt(employeeQuestions)
     
     .then((response) => {
@@ -211,7 +230,7 @@ function addEmployee () {
             for (var i = 0; i < roleArray.length; i++){
                 if(roleArray[i] === response.role){
                     roleID = roleIDs[i]
-                    console.log(roleID)
+                    
                 }
             }
         }
@@ -243,8 +262,11 @@ function addDepartment() {
         )
         console.log(response.department, 'added into the system')
         departmentArray.push(response.department)
+        
+
         home()
     })
+
 }
 
 
@@ -349,6 +371,7 @@ const viewRoles = async () => {
 }
 
 const updateEmployees = async () => {
+    
     inquirer.prompt([{
         name: 'choice',
         type: 'list',
@@ -359,7 +382,7 @@ const updateEmployees = async () => {
     .then((response) => {
         switch(response.choice) {
             case 'Update employee ROLE':
-                // something
+                updateRole()
                 break;
             case 'Update employee MANAGER':
                 // something
@@ -368,8 +391,53 @@ const updateEmployees = async () => {
     })
 }
 
+
 const updateRole = async () => {
+    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id)')
+    console.table(
+        '=====================================================',
+        '-----------------   ALL EMPLOYEES   -----------------',
+        '-----------------------------------------------------',
+        allEmployees,
+        '====================================================='
+    )
     
+    inquirer.prompt([{
+        name: 'employee',
+        type: 'list',
+        choices: employeeArray,
+        message: 'Please select the employee ID you would like to update'
+    },
+    {
+        name: 'role',
+        type: 'list',
+        choices: roleArray,
+        message: 'What is this employees new role?'
+    }
+        
+    ])
+    .then((response) => {
+        var newRoleID = 0
+        for (let i = 0; i < roleArray.length; i++){
+            if (roleArray[i] === response.role){
+                newRoleID = roleIDs[i]
+            }
+        }
+        connection.query(
+            'UPDATE employees SET ? WHERE ?',
+            [
+                {
+                    role_id: newRoleID
+                },
+                {
+                    id: response.employee
+                }
+            ]
+        )
+        console.log("Role Updated")
+        home()
+    })
+
 }
 
 
