@@ -8,6 +8,7 @@ const connection = require('../config/connection');
 
 const employeeArray = []
 const allEmployees = async () => {
+    employeeArray.splice(0, employeeArray.length)
     const theEmployees = await connection.query('SELECT * FROM employees', (err, results) => {
         if (err) throw err;
 
@@ -26,6 +27,8 @@ const allEmployees = async () => {
 const managerArray = []
 const managerIDs = []
 const allManagers = async () => {
+    managerArray.splice(0, managerArray.length)
+    managerIDs.splice(0, managerIDs.length)
     const theManagers = await connection.query('SELECT * FROM managers', (err, results) => {
             if (err) throw err;
 
@@ -45,6 +48,8 @@ const allManagers = async () => {
 const departmentArray = []
 const departmentIDs = []
 const allDepartments = async () => {
+    departmentArray.splice(0, departmentArray.length)
+    departmentIDs.splice(0, departmentIDs.length)
     const theDepartments = await connection.query('SELECT * FROM departments', (err, results) => {
             if (err) throw err;
 
@@ -64,6 +69,8 @@ const allDepartments = async () => {
 const roleArray = []
 const roleIDs = []
 const allRoles = async () => {
+    roleArray.splice(0, roleArray.length)
+    roleIDs.splice(0, roleIDs.length)
     const theRoles = await connection.query('SELECT * FROM roles', (err, results) => {
             if (err) throw err;
             if(results.length !== 0){
@@ -76,7 +83,6 @@ const allRoles = async () => {
                 roleArray.push('No Roles Available')
                 roleIDs.push(0)
             }
-            allRoles()
     }); 
     
 }
@@ -179,55 +185,55 @@ const start = async () => {
 
 // same as above but doesnt include the functions to fill the arrays, otherwise the info in the arrays get duplicated each time the menu is returned to
 
-function home(){
-    inquirer.prompt({
-        name: 'start',
-        type: 'list',
-        message: 'What action would you like to take?',
-        choices: [
-            'View Employees',
-            'View Departments',
-            'View Roles',
-            'Add Employee',
-            'Add Department',
-            'Add Role',
-            'Update Employee',
-            'Delete Data',
-            'Exit',
-        ],
-    })
-    .then((response) => {
-        switch (response.start) {
-            case 'View Employees':
-                viewEmployees();
-                break;
-            case 'View Departments':
-                viewDeparmtents();
-                break;
-            case 'View Roles':
-                viewRoles();
-                break;
-            case 'Add Employee':
-                addEmployee();
-                break;
-            case 'Add Department':
-                addDepartment();
-                break;
-            case 'Add Role':
-                addRole();
-                break;
-            case 'Update Employee':
-                updateEmployees();
-                break;
-            case 'Delete Data':
-                deleteFunction()
-                break;
-            case 'Exit':
-                exit();
-                break;
-        }
-        });
-}
+// function home(){
+//     inquirer.prompt({
+//         name: 'start',
+//         type: 'list',
+//         message: 'What action would you like to take?',
+//         choices: [
+//             'View Employees',
+//             'View Departments',
+//             'View Roles',
+//             'Add Employee',
+//             'Add Department',
+//             'Add Role',
+//             'Update Employee',
+//             'Delete Data',
+//             'Exit',
+//         ],
+//     })
+//     .then((response) => {
+//         switch (response.start) {
+//             case 'View Employees':
+//                 viewEmployees();
+//                 break;
+//             case 'View Departments':
+//                 viewDeparmtents();
+//                 break;
+//             case 'View Roles':
+//                 viewRoles();
+//                 break;
+//             case 'Add Employee':
+//                 addEmployee();
+//                 break;
+//             case 'Add Department':
+//                 addDepartment();
+//                 break;
+//             case 'Add Role':
+//                 addRole();
+//                 break;
+//             case 'Update Employee':
+//                 updateEmployees();
+//                 break;
+//             case 'Delete Data':
+//                 deleteFunction()
+//                 break;
+//             case 'Exit':
+//                 exit();
+//                 break;
+//         }
+//         });
+// }
 
 // --------------------------------------------------------------------------------------------------------------
 // all view functions
@@ -253,7 +259,7 @@ function viewEmployees(){
                 viewEmployeesByManager()
                 break;
             case 'Exit':
-                home()
+                start()
                 break;
         }
     })
@@ -304,7 +310,7 @@ const viewDeparmtents = async () => {
         departments,
         '==================================='
     )
-    home()
+    start()
 }
 
 const viewRoles = async () => {
@@ -316,7 +322,7 @@ const viewRoles = async () => {
         roles,
         '==================================='
     )
-    home()
+    start()
 }
 
 // --------------------------------------------------------------------------------------------------------------
@@ -339,7 +345,7 @@ function addEmployee () {
         }
 
         if (roleArray.length !== 0){
-            for (var i = 0; i <= roleArray.length; i++){
+            for (var i = 0; i < roleArray.length; i++){
                 if(roleArray[i] === response.role){
                     roleID = roleIDs[i]
                     
@@ -360,7 +366,10 @@ function addEmployee () {
                 employeeName,
                 '----- ADDED INTO SYSTEM -----',
                 '=============================')
-        home()
+
+            employeeArray.push(employeeName)
+        
+            start()
     })
 }
 
@@ -384,7 +393,7 @@ function addDepartment() {
         departmentArray.push(response.department)
         
 
-        home()
+        start()
     })
 
 }
@@ -395,7 +404,7 @@ function addRole() {
         var departmentID = 0
 
         if (departmentArray.length !== 0){
-            for (var i = 0; i <= departmentArray.length; i++){
+            for (var i = 0; i < departmentArray.length; i++){
                 if (departmentArray[i] === response.department){
                     departmentID = departmentIDs[i]
                 }
@@ -417,7 +426,7 @@ function addRole() {
             '----- ADDED INTO SYSTEM -----',
             '=============================')
         roleArray.push(response.title)
-        home()
+        start()
     })
 }
 
@@ -474,7 +483,7 @@ const updateRole = async () => {
     ])
     .then((response) => {
         var newRoleID = 0
-        for (let i = 0; i <= roleArray.length; i++){
+        for (let i = 0; i < roleArray.length; i++){
             if (roleArray[i] === response.role){
                 newRoleID = roleIDs[i]
             }
@@ -496,7 +505,7 @@ const updateRole = async () => {
             '=============================')
         
     })
-    .then((response) => home())
+    .then((response) => start())
 
 }
 
@@ -526,7 +535,7 @@ const updateManager = async () => {
     ])
     .then((response) => {
         var newManagerID = 0
-        for (let i = 0; i <= managerArray.length; i++){
+        for (let i = 0; i < managerArray.length; i++){
             if (managerArray[i] === response.manager){
                 newManagerID = managerIDs[i]
             }
@@ -548,7 +557,7 @@ const updateManager = async () => {
             '=============================')
         
     })
-    .then((response) => home())
+    .then((response) => start())
 }
 
 // --------------------------------------------------------------------------------------------------------------
@@ -573,7 +582,7 @@ function deleteFunction() {
                 deleteRole()
                 break;
             case 'Exit':
-                home()
+                start()
                 break;
 
         }
@@ -604,7 +613,7 @@ const deleteEmployee = async () => {
             '-----  EMPLOYEE DELETED  ----',
             '=============================')
     })
-    .then((response) => home())
+    .then((response) => start())
 }
 
 const deleteDepartment = async () => {
@@ -631,7 +640,7 @@ const deleteDepartment = async () => {
             '----  DEPARTMENT DELETED  ---',
             '=============================')
     })
-    .then((response) => home())
+    .then((response) => start())
 }
 
 const deleteRole = async () => {
@@ -658,7 +667,7 @@ const deleteRole = async () => {
             '-------  ROLE DELETED  ------',
             '=============================')
     })
-    .then((response) => home())
+    .then((response) => start())
 }
 
 

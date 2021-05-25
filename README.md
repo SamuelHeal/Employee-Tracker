@@ -11,6 +11,7 @@
   - [Contribution](#contribution)
   - [Test](#test)
   - [License](#license)
+  - [Images](#images)
   - [Questions](#questions)
 
   ## Installation
@@ -27,6 +28,10 @@
 
   ## License
   ISC
+
+  ## Images
+  ![screenshot](homeScreen.png)
+  ![screenshot](employees.png)
 
   ## Questions
   Github: https://github.com/SamuelHeal
