@@ -339,19 +339,19 @@ function viewEmployees(){
 }
 
 const viewAllEmployees = async () => {
-    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id)')
+    const allEmployees = await connection.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id) ORDER BY employees.id')
     console.table(
-        '=====================================================',
-        '-----------------   ALL EMPLOYEES   -----------------',
-        '-----------------------------------------------------',
+        '===========================================================================',
+        '----------------------------   ALL EMPLOYEES   ----------------------------',
+        '---------------------------------------------------------------------------',
         allEmployees,
-        '====================================================='
+        '==========================================================================='
     )
     viewEmployees()
 }
 
 const viewEmployeesByRole = async () => {
-    const employeesRole = await connection.query('SELECT roles.title, employees.first_name, employees.last_name, roles.salary FROM employees LEFT JOIN roles ON roles.id = employees.role_id ORDER BY roles.id')
+    const employeesRole = await connection.query('SELECT roles.title, employees.first_name, employees.last_name, roles.salary FROM employees INNER JOIN roles ON roles.id = employees.role_id ORDER BY roles.id')
     console.table(
         '==========================================',
         '---------   EMPLOYEES BY ROLES   ---------',
@@ -423,13 +423,13 @@ const updateEmployees = async () => {
 
 
 const updateRole = async () => {
-    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id) ORDER BY employees.role_id')
+    const allEmployees = await connection.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id) ORDER BY employees.id')
     console.table(
-        '=====================================================',
-        '-----------------   ALL EMPLOYEES   -----------------',
-        '-----------------------------------------------------',
+        '===========================================================================',
+        '----------------------------   ALL EMPLOYEES   ----------------------------',
+        '---------------------------------------------------------------------------',
         allEmployees,
-        '====================================================='
+        '==========================================================================='
     )
     
     inquirer.prompt([{
@@ -476,13 +476,13 @@ const updateRole = async () => {
 
 
 const updateManager = async () => {
-    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id) ORDER BY managers.id')
+    const allEmployees = await connection.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id) ORDER BY employees.id')
     console.table(
-        '=====================================================',
-        '-----------------   ALL EMPLOYEES   -----------------',
-        '-----------------------------------------------------',
+        '===========================================================================',
+        '----------------------------   ALL EMPLOYEES   ----------------------------',
+        '---------------------------------------------------------------------------',
         allEmployees,
-        '====================================================='
+        '==========================================================================='
     )
 
     inquirer.prompt([{
