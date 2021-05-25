@@ -2,8 +2,6 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
 const connection = require('../config/connection');
-const manager = require('../../../Assignment_10/Team_Profile_Generator/Classes/Manager');
-
 
 const start = async () => {
     allManagers()
@@ -26,13 +24,59 @@ const start = async () => {
     }).then((response) => {
         switch (response.start) {
             case 'View Employees':
-                // addDepartment();
+                viewEmployees();
                 break;
             case 'View Departments':
-                // addRole();
+                viewDeparmtents();
                 break;
             case 'View Roles':
-                // addEmployee();
+                viewRoles();
+                break;
+            case 'Add Employee':
+                addEmployee();
+                break;
+            case 'Add Department':
+                addDepartment();
+                break;
+            case 'Add Role':
+                addRole();
+                break;
+            case 'Update Employee':
+                console.log("Update Employee Role");
+                break;
+            case 'Exit':
+                // exitProgram();
+                break;
+        }
+        });
+};
+
+function home(){
+    inquirer.prompt({
+        name: 'start',
+        type: 'list',
+        message: 'What action would you like to take?',
+        choices: [
+            'View Employees',
+            'View Departments',
+            'View Roles',
+            'Add Employee',
+            'Add Department',
+            'Add Role',
+            'Update Employee Role',
+            'Exit',
+        ],
+    })
+    .then((response) => {
+        switch (response.start) {
+            case 'View Employees':
+                viewEmployees();
+                break;
+            case 'View Departments':
+                viewDeparmtents();
+                break;
+            case 'View Roles':
+                viewRoles();
                 break;
             case 'Add Employee':
                 addEmployee();
@@ -51,7 +95,7 @@ const start = async () => {
                 break;
         }
         });
-};
+}
 
 const managerArray = []
 const managerIDs = []
@@ -68,12 +112,8 @@ const allManagers = async () => {
             else{
                 managerArray.push('No Managers Available')
                 managerIDs.push(0)
-            }
-                
-            
-            
-    });
-    
+            }    
+    });  
 }
 
 const departmentArray = []
@@ -92,8 +132,7 @@ const allDepartments = async () => {
                 departmentArray.push('No Departments Available')
                 departmentIDs.push(0)
             }
-    });
-    
+    }); 
 }
 
 const roleArray = []
@@ -111,8 +150,7 @@ const allRoles = async () => {
                 roleArray.push('No Roles Available')
                 roleIDs.push(0)
             }
-    });
-    
+    }); 
 }
 
 const employeeQuestions = [{
@@ -136,7 +174,23 @@ const employeeQuestions = [{
     choices: managerArray
 }]
 
+const roleQuestions = [{
+    name: 'title',
+    message: 'What is the title of the position you would like to add? '
+},
+{
+    name: 'salary',
+    message: 'What is the salary for this position? '
+},
+{
+    name: 'department',
+    type: 'list',
+    message: 'What department will the position be in? ',
+    choices: departmentArray
+}]
+
 function addEmployee () {
+    console.log(roleIDs)
     inquirer.prompt(employeeQuestions)
     
     .then((response) => {
@@ -155,8 +209,9 @@ function addEmployee () {
 
         if (roleArray.length !== 0){
             for (var i = 0; i < roleArray.length; i++){
-                if(roleArray[i] === response.manager){
+                if(roleArray[i] === response.role){
                     roleID = roleIDs[i]
+                    console.log(roleID)
                 }
             }
         }
@@ -170,6 +225,7 @@ function addEmployee () {
                     manager_id: managerID
             })
         console.log(employeeName, 'added into the system')
+        home()
     })
 }
 
@@ -186,24 +242,12 @@ function addDepartment() {
             }
         )
         console.log(response.department, 'added into the system')
-
+        departmentArray.push(response.department)
+        home()
     })
 }
 
-const roleQuestions = [{
-    name: 'title',
-    message: 'What is the title of the position you would like to add? '
-},
-{
-    name: 'salary',
-    message: 'What is the salary for this position? '
-},
-{
-    name: 'department',
-    type: 'list',
-    message: 'What department will the position be in? ',
-    choices: departmentArray
-}]
+
 
 function addRole() {
     inquirer.prompt(roleQuestions)
@@ -227,7 +271,105 @@ function addRole() {
             }
         )
         console.log(response.title, 'added into the system')
+        roleArray.push(response.title)
+        home()
     })
+}
+
+function viewEmployees(){
+    inquirer.prompt([
+        {
+            name: 'choice',
+            type: 'list',
+            choices: ['View ALL employees', 'View employees by ROLE', 'Exit'],
+            message: 'What would you like to do?'
+        }
+    ])
+    .then((response) => {
+        switch (response.choice) {
+            case 'View ALL employees':
+                viewAllEmployees()
+                break;
+            case 'View employees by ROLE':
+                viewEmployeesByRole()
+                break;
+            case 'Exit':
+                home()
+                break;
+        }
+    })
+}
+
+const viewAllEmployees = async () => {
+    const allEmployees = await connection.query('SELECT employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id)')
+    console.table(
+        '=====================================================',
+        '-----------------   ALL EMPLOYEES   -----------------',
+        '-----------------------------------------------------',
+        allEmployees,
+        '====================================================='
+    )
+    viewEmployees()
+}
+
+const viewEmployeesByRole = async () => {
+    const employeesRole = await connection.query('SELECT roles.title, employees.first_name, employees.last_name, roles.salary FROM employees LEFT JOIN roles ON roles.id = employees.role_id')
+    console.table(
+        '==========================================',
+        '---------   EMPLOYEES BY ROLES   ---------',
+        '------------------------------------------',
+        employeesRole,
+        '=========================================='
+    )
+    viewEmployees()
+}
+
+const viewDeparmtents = async () => {
+    const departments = await connection.query('SELECT * FROM departments')
+    console.table(
+        '===================================',
+        '---------   DEPARTMENTS   ---------',
+        '-----------------------------------',
+        departments,
+        '==================================='
+    )
+    home()
+}
+
+const viewRoles = async () => {
+    const roles = await connection.query('SELECT * FROM roles')
+    console.table(
+        '===================================',
+        '------------   ROLES   ------------',
+        '-----------------------------------',
+        roles,
+        '==================================='
+    )
+    home()
+}
+
+const updateEmployees = async () => {
+    inquirer.prompt([{
+        name: 'choice',
+        type: 'list',
+        choices: ['Update employee ROLE', 'Update employee MANAGER'],
+        message: 'What would you like to do?'
+    }
+    ])
+    .then((response) => {
+        switch(response.choice) {
+            case 'Update employee ROLE':
+                // something
+                break;
+            case 'Update employee MANAGER':
+                // something
+                break;
+        }
+    })
+}
+
+const updateRole = async () => {
+    
 }
 
 
