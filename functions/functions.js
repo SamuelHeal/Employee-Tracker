@@ -3,100 +3,8 @@ const inquirer = require('inquirer');
 const consoleTable = require('console.table');
 const connection = require('../config/connection');
 
-const start = async () => {
-    allManagers()
-    allDepartments()
-    allRoles()
-    allEmployees()
-    return await inquirer.prompt({
-        name: 'start',
-        type: 'list',
-        message: 'What action would you like to take?',
-        choices: [
-            'View Employees',
-            'View Departments',
-            'View Roles',
-            'Add Employee',
-            'Add Department',
-            'Add Role',
-            'Update Employee',
-            'Exit',
-        ],
-    }).then((response) => {
-        switch (response.start) {
-            case 'View Employees':
-                viewEmployees();
-                break;
-            case 'View Departments':
-                viewDeparmtents();
-                break;
-            case 'View Roles':
-                viewRoles();
-                break;
-            case 'Add Employee':
-                addEmployee();
-                break;
-            case 'Add Department':
-                addDepartment();
-                break;
-            case 'Add Role':
-                addRole();
-                break;
-            case 'Update Employee':
-                updateEmployees();
-                break;
-            case 'Exit':
-                exit();
-                break;
-        }
-        });
-};
-
-function home(){
-    inquirer.prompt({
-        name: 'start',
-        type: 'list',
-        message: 'What action would you like to take?',
-        choices: [
-            'View Employees',
-            'View Departments',
-            'View Roles',
-            'Add Employee',
-            'Add Department',
-            'Add Role',
-            'Update Employee',
-            'Exit',
-        ],
-    })
-    .then((response) => {
-        switch (response.start) {
-            case 'View Employees':
-                viewEmployees();
-                break;
-            case 'View Departments':
-                viewDeparmtents();
-                break;
-            case 'View Roles':
-                viewRoles();
-                break;
-            case 'Add Employee':
-                addEmployee();
-                break;
-            case 'Add Department':
-                addDepartment();
-                break;
-            case 'Add Role':
-                addRole();
-                break;
-            case 'Update Employee':
-                updateEmployees();
-                break;
-            case 'Exit':
-                exit();
-                break;
-        }
-        });
-}
+// --------------------------------------------------------------------------------------------------------------
+// placing all employees, departments, managers and roles in arrays for easy access
 
 const employeeArray = []
 const allEmployees = async () => {
@@ -172,6 +80,8 @@ const allRoles = async () => {
     }); 
     
 }
+// --------------------------------------------------------------------------------------------------------------
+// question arrays for some inquirer functions 
 
 const employeeQuestions = [{
     name: 'firstName',
@@ -209,107 +119,118 @@ const roleQuestions = [{
     choices: departmentArray
 }]
 
-function addEmployee () {
-    inquirer.prompt(employeeQuestions)
-    
-    .then((response) => {
-        let employeeName = `${response.firstName} ${response.lastName}`
-        var roleID = 0
-        var managerID = 0
-        if (managerArray.length !== 0){
-            for (var i = 0; i < managerArray.length; i++){
-                if(managerArray[i] === response.manager){
-                    managerID = managerIDs[i]
-                }
-    
-            }
-            
-        }
 
-        if (roleArray.length !== 0){
-            for (var i = 0; i < roleArray.length; i++){
-                if(roleArray[i] === response.role){
-                    roleID = roleIDs[i]
-                    
-                }
-            }
-        }
-        
-        connection.query(
-            'INSERT INTO employees SET ?',
-            {
-                    first_name: response.firstName,
-                    last_name: response.lastName,
-                    role_id: roleID,
-                    manager_id: managerID
-            })
-            console.table(
-                '=============================',
-                employeeName,
-                '----- ADDED INTO SYSTEM -----',
-                '=============================')
-        home()
-    })
-}
 
-function addDepartment() {
+// --------------------------------------------------------------------------------------------------------------
+// the initial function passed into the server.js file, includes the above functions to fill the arrays
+
+const start = async () => {
+    allManagers()
+    allDepartments()
+    allRoles()
+    allEmployees()
+    return await inquirer.prompt({
+        name: 'start',
+        type: 'list',
+        message: 'What action would you like to take?',
+        choices: [
+            'View Employees',
+            'View Departments',
+            'View Roles',
+            'Add Employee',
+            'Add Department',
+            'Add Role',
+            'Update Employee',
+            'Delete Data',
+            'Exit',
+        ],
+    }).then((response) => {
+        switch (response.start) {
+            case 'View Employees':
+                viewEmployees();
+                break;
+            case 'View Departments':
+                viewDeparmtents();
+                break;
+            case 'View Roles':
+                viewRoles();
+                break;
+            case 'Add Employee':
+                addEmployee();
+                break;
+            case 'Add Department':
+                addDepartment();
+                break;
+            case 'Add Role':
+                addRole();
+                break;
+            case 'Update Employee':
+                updateEmployees();
+                break;
+            case 'Delete Data':
+                deleteFunction()
+                break;
+            case 'Exit':
+                exit();
+                break;
+        }
+        });
+};
+
+// same as above but doesnt include the functions to fill the arrays, otherwise the info in the arrays get duplicated each time the menu is returned to
+
+function home(){
     inquirer.prompt({
-        name: 'department',
-        message: 'What is the name of the department you would like to add?'
+        name: 'start',
+        type: 'list',
+        message: 'What action would you like to take?',
+        choices: [
+            'View Employees',
+            'View Departments',
+            'View Roles',
+            'Add Employee',
+            'Add Department',
+            'Add Role',
+            'Update Employee',
+            'Delete Data',
+            'Exit',
+        ],
     })
     .then((response) => {
-        connection.query(
-            'INSERT INTO departments SET ?',
-            {
-                department_name: response.department
-            }
-        )
-        console.table(
-            '=============================',
-            response.department,
-            '----- ADDED INTO SYSTEM -----',
-            '=============================')
-        departmentArray.push(response.department)
-        
-
-        home()
-    })
-
-}
-
-
-
-function addRole() {
-    inquirer.prompt(roleQuestions)
-    .then((response) => {
-        var departmentID = 0
-
-        if (departmentArray.length !== 0){
-            for (var i = 0; i < departmentArray.length; i++){
-                if (departmentArray[i] === response.department){
-                    departmentID = departmentIDs[i]
-                }
-            }
+        switch (response.start) {
+            case 'View Employees':
+                viewEmployees();
+                break;
+            case 'View Departments':
+                viewDeparmtents();
+                break;
+            case 'View Roles':
+                viewRoles();
+                break;
+            case 'Add Employee':
+                addEmployee();
+                break;
+            case 'Add Department':
+                addDepartment();
+                break;
+            case 'Add Role':
+                addRole();
+                break;
+            case 'Update Employee':
+                updateEmployees();
+                break;
+            case 'Delete Data':
+                deleteFunction()
+                break;
+            case 'Exit':
+                exit();
+                break;
         }
-
-        connection.query(
-            'INSERT INTO roles SET ?',
-            {
-                title: response.title,
-                salary: response.salary,
-                department_id: departmentID
-            }
-        )
-        console.log(response.title, 'added into the system')
-        console.table(
-            '=============================',
-            response.title,
-            '----- ADDED INTO SYSTEM -----',
-            '=============================')
-        roleArray.push(response.title)
-        home()
-    })
+        });
 }
+
+// --------------------------------------------------------------------------------------------------------------
+// all view functions
 
 function viewEmployees(){
     inquirer.prompt([
@@ -398,7 +319,112 @@ const viewRoles = async () => {
     home()
 }
 
-const updateEmployees = async () => {
+// --------------------------------------------------------------------------------------------------------------
+// all add functions
+
+function addEmployee () {
+    inquirer.prompt(employeeQuestions)
+    .then((response) => {
+        let employeeName = `${response.firstName} ${response.lastName}`
+        var roleID = 0
+        var managerID = 0
+        if (managerArray.length !== 0){
+            for (var i = 0; i < managerArray.length; i++){
+                if(managerArray[i] === response.manager){
+                    managerID = managerIDs[i]
+                }
+    
+            }
+            
+        }
+
+        if (roleArray.length !== 0){
+            for (var i = 0; i < roleArray.length; i++){
+                if(roleArray[i] === response.role){
+                    roleID = roleIDs[i]
+                    
+                }
+            }
+        }
+        
+        connection.query(
+            'INSERT INTO employees SET ?',
+            {
+                    first_name: response.firstName,
+                    last_name: response.lastName,
+                    role_id: roleID,
+                    manager_id: managerID
+            })
+            console.table(
+                '=============================',
+                employeeName,
+                '----- ADDED INTO SYSTEM -----',
+                '=============================')
+        home()
+    })
+}
+
+function addDepartment() {
+    inquirer.prompt({
+        name: 'department',
+        message: 'What is the name of the department you would like to add?'
+    })
+    .then((response) => {
+        connection.query(
+            'INSERT INTO departments SET ?',
+            {
+                department_name: response.department
+            }
+        )
+        console.table(
+            '=============================',
+            response.department,
+            '----- ADDED INTO SYSTEM -----',
+            '=============================')
+        departmentArray.push(response.department)
+        
+
+        home()
+    })
+
+}
+
+function addRole() {
+    inquirer.prompt(roleQuestions)
+    .then((response) => {
+        var departmentID = 0
+
+        if (departmentArray.length !== 0){
+            for (var i = 0; i < departmentArray.length; i++){
+                if (departmentArray[i] === response.department){
+                    departmentID = departmentIDs[i]
+                }
+            }
+        }
+
+        connection.query(
+            'INSERT INTO roles SET ?',
+            {
+                title: response.title,
+                salary: response.salary,
+                department_id: departmentID
+            }
+        )
+        console.log(response.title, 'added into the system')
+        console.table(
+            '=============================',
+            response.title,
+            '----- ADDED INTO SYSTEM -----',
+            '=============================')
+        roleArray.push(response.title)
+        home()
+    })
+}
+
+// --------------------------------------------------------------------------------------------------------------
+// all update functions 
+
+function updateEmployees() {
     
     inquirer.prompt([{
         name: 'choice',
@@ -474,7 +500,6 @@ const updateRole = async () => {
 
 }
 
-
 const updateManager = async () => {
     const allEmployees = await connection.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id) ORDER BY employees.id')
     console.table(
@@ -525,6 +550,119 @@ const updateManager = async () => {
     })
     .then((response) => home())
 }
+
+// --------------------------------------------------------------------------------------------------------------
+// all delete functions
+
+function deleteFunction() {
+    inquirer.prompt({
+        name: 'delete',
+        type: 'list',
+        choices: ['Delete an EMPLOYEE', 'Delete a DEPARTMENT', 'Delete a ROLE', 'Exit'],
+        message: 'What would you like to do?'
+    })
+    .then((response) => {
+        switch(response.delete){
+            case 'Delete an EMPLOYEE':
+                deleteEmployee()
+                break;
+            case 'Delete a DEPARTMENT':
+                deleteDepartment()
+                break;
+            case 'Delete a ROLE':
+                deleteRole()
+                break;
+            case 'Exit':
+                home()
+                break;
+
+        }
+    })
+}
+
+const deleteEmployee = async () => {
+    const allEmployees = await connection.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary, managers.manager_name FROM ((employees INNER JOIN roles ON roles.id = employees.role_id) INNER JOIN managers ON managers.id = employees.manager_id) ORDER BY employees.id')
+    console.table(
+        '===========================================================================',
+        '----------------------------   ALL EMPLOYEES   ----------------------------',
+        '---------------------------------------------------------------------------',
+        allEmployees,
+        '==========================================================================='
+    )
+    inquirer.prompt({
+        name: 'employee',
+        type: 'list',
+        choices: employeeArray,
+        message: 'Please select the employee ID you would like to delete'
+    })
+    .then((response) => {
+        connection.query('DELETE FROM employees WHERE ?', {
+            id: response.employee
+        })
+        console.table(
+            '=============================',
+            '-----  EMPLOYEE DELETED  ----',
+            '=============================')
+    })
+    .then((response) => home())
+}
+
+const deleteDepartment = async () => {
+    const departments = await connection.query('SELECT * FROM departments')
+    console.table(
+        '===================================',
+        '---------   DEPARTMENTS   ---------',
+        '-----------------------------------',
+        departments,
+        '==================================='
+    )
+    inquirer.prompt({
+        name: 'department',
+        type: 'list',
+        choices: departmentArray,
+        message: 'Please select the department you wish to delete'
+    })
+    .then((response) => {
+        connection.query('DELETE FROM departments WHERE ?', {
+            department_name: response.department
+        })
+        console.table(
+            '=============================',
+            '----  DEPARTMENT DELETED  ---',
+            '=============================')
+    })
+    .then((response) => home())
+}
+
+const deleteRole = async () => {
+    const roles = await connection.query('SELECT * FROM roles')
+    console.table(
+        '===================================',
+        '------------   ROLES   ------------',
+        '-----------------------------------',
+        roles,
+        '==================================='
+    )
+    inquirer.prompt({
+        name: 'role',
+        type: 'list',
+        choices: roleArray,
+        message: 'Please select a role you would like to delete'
+    })
+    .then((response) => {
+        connection.query('DELETE FROM roles WHERE ?', {
+            title: response.role
+        })
+        console.table(
+            '=============================',
+            '-------  ROLE DELETED  ------',
+            '=============================')
+    })
+    .then((response) => home())
+}
+
+// --------------------------------------------------------------------------------------------------------------
+// exit function
 
 function exit() {
     console.table(
